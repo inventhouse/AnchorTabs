@@ -37,4 +37,20 @@ cat CopyAnchor.js | tr '\n' ' ' | sed -e 's/  */ /g' | pbcopy
 ⫸ plutil -p ~/Library/Safari/LastSession.plist | grep "TabURL" | sort | uniq | wc -l
 747
 
+The following "should" work, but they don't
+
+Add Bookmarks for These  Tabs...
+⫸ defaults read -app Safari
+{
+    NSUserKeyEquivalents =     {
+        "Add Bookmarks for These 2 Tabs..." = "@^1";
+    };
+}
+⫸ defaults read com.apple.universalaccess "com.apple.custommenu.apps"
+(
+    "com.apple.Safari"
+)
+⫸
+⫸ defaults write -app Safari NSUserKeyEquivalents -dict-add "Add Bookmarks for These 3 Tabs..." "@^1"  # Not showing up even after `killall cfprefsd`, restart Safari, even reboot
+
 ---
