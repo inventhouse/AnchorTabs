@@ -7,50 +7,53 @@ Anchor Tabs
 -----------
 _"1 weird trick" for managing browser tabs_
 
-**1.** Make the first tab of each window the "anchor" for that topic / task; maybe the git-whatever page, Wikipedia article, or issue ticket, something that serves to identify the "subject" of that window.
+_(Note: I started doing this before "tab groups" became a thing in major browsers; it has continued to serve me well especially combined with my tabgrab script below, so I haven't really tried tab groups)_
+
+**1.** Consider the first tab of each window the "anchor" for that topic / task; maybe use a relevant Wikipedia article, the ticket of the issue or feature, or the project's home page, something that serves to identify the "subject" of that window.
 
 **2.** Be strict about using the right window; if a tab opens in a window where it doesn't belong, at _least_ pull it out; ideally put it where it belongs
 
 **3.** _Always_ switch back to the first tab when minimizing the window (often just switch back to it anyway) so it shows up in the window list under a consistent name.  In most browsers `⌘1` (or whatever the "command" key for your platform is) will do that - `⌘1 ⌘M`, quick and easy!
 
-This technique has served me very well, I'm able to go back to things I worked on weeks ago and find the query I cooked up for it or whatever I'm looking for.  
+**Bonus:** If you're on macOS, enable App Exposé (three-finger swipe down) in the Trackpad [System Settings](x-apple.systempreferences:) (sorry, can't link to that specific pane.)  Try to minimize windows you're not using (`⌘1 ⌘M`!) to keep the number of active windows around a half-dozen to a dozen; it's _much_ easier to scan a handful of browser windows than all windows for all apps.
 
-It worked _too_ well, I didn't know which of the windows with all that context would be useful so I kept them minimized - Over 800 tabs in more than 300 windows!
+This technique has worked very well for me, I'm able to go back to things I worked on weeks ago and find the query I cooked up for it or whatever I'm looking for.
 
-Bookmarking
------------
-Create bookmarks for that window's tabs based on the anchor tab title
+Tabpocalypse II
+---------------
+It worked _too_ well; _SO_ many windows with so much great context, and I never knew which would be useful or not so I kept them minimized but had no way cull or archive them - Over 800 tabs in more than 300 windows at one point!
 
-cat CopyAnchor.js | tr '\n' ' ' | sed -e 's/  */ /g' | pbcopy
+I experimented with bookmarking groups of them, but the workflow was slow and the bookmarks were browser-specific, I didn't have a good way to extract them.
 
-_(( Write this part up ))_
+So I Wrote a Script
+-------------------
+[Tabgrab](https://github.com/inventhouse/BenBin/blob/master/tabgrab) works with Safari or Chrome to collect links for all those tabs _and_ it preserves the Anchor Tab and window grouping.  Here is the full usage:
 
-_(( Figure out how to script Safari's goofy shortcuts: [How to Script macOS Keyboard Shortcuts](https://www.rightpoint.com/rplabs/script-keyboard-os-x-shortcuts) ))_
+```
+usage: tabgrab [-h|--help] [-c|--copy] [BROWSER]
+       Collect tabs from all windows as a markdown list of links with
+       the first tab of each window as the parent of the remaining tabs.
+       BROWSER defaults to the BROWSER_APP environment variable, otherwise
+       the default handler for 'https' is used to guess the system browser.
 
----
+       -c, --copy    Copies the list to the pasteboard
 
-cat CopyAnchor.js | tr '\n' ' ' | sed -e 's/  */ /g' | pbcopy
+       -n, --num-windows N
+                     Collects tabs from the first N windows, defaults to
+                     all windows
 
+       -h, --help    Print this message and exit
+```
 
-⫸ plutil -p ~/Library/Safari/LastSession.plist | grep "TabUUID" | sort | uniq | wc -l
-809
-⫸ plutil -p ~/Library/Safari/LastSession.plist | grep "TabURL" | sort | uniq | wc -l
-747
+How I Use Tabgrab
+-----------------
+When the tabs and windows proliferate too much, or I'm going to reboot for a software update, I make a new tabdump file:
+```sh
+tabgrab > pensive/Notes/Tabdumps/Tabs-`hostname | sed -e 's/\\.local//'`_`date "+%Y-%m-%d"`.md
+```
 
-The following "should" work, but they don't
+...and then _I close them **all**_; in Safari: Window > Merge All Windows, then close that mega-window, in Chrome, open the File menu and press the `option` key, "Close Window" becomes "Close All".
 
-Add Bookmarks for These  Tabs...
-⫸ defaults read -app Safari
-{
-    NSUserKeyEquivalents =     {
-        "Add Bookmarks for These 2 Tabs..." = "@^1";
-    };
-}
-⫸ defaults read com.apple.universalaccess "com.apple.custommenu.apps"
-(
-    "com.apple.Safari"
-)
-⫸
-⫸ defaults write -app Safari NSUserKeyEquivalents -dict-add "Add Bookmarks for These 3 Tabs..." "@^1"  # Not showing up even after `killall cfprefsd`, restart Safari, even reboot
+I check the tabdumps into a private repo I call my "pensieve" (it's a [Harry Potter reference](https://www.wizardingworld.com/writing-by-jk-rowling/pensieve); here is a [template repo](https://github.com/inventhouse/pensieve?tab=readme-ov-file#making-your-own-pensieve) if you want to make your own.)  GitLab/GitHub/Gitea/etc all render Markdown files automatically, so from the newly pushed file I can re-open any subsets of I actually _am_ using.
 
 ---
